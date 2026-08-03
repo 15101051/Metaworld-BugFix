@@ -6,6 +6,9 @@
 # derived from https://github.com/Farama-Foundation/PettingZoo/blob/e230f4d80a5df3baf9bd905149f6d4e8ce22be31/.github/workflows/build-publish.yml
 name: Build artifact for PyPI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]
@@ -14,13 +17,16 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
   build-wheels:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v7
 
     - name: Install dependencies
       run: pipx install build
@@ -29,18 +35,21 @@ jobs:
       run: pyproject-build
 
     - name: Store wheels
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: dist
 
   publish:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
+    permissions: {}
     needs:
     - build-wheels
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
     - name: Download dists
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: artifact
         path: dist
